@@ -35,8 +35,9 @@ let evaluteExpressionAndDisplay = function(event){
 
     if(operators.includes(val)){
         // if after evaluting expression user click operator, the first operand become the last asnwer
-        if(operandOne.length == 0) operandOne.push(String(answer));
+        if(operandOne.length == 0 ) operandOne.push(...String(answer).split(""));
         operator[0] = val;
+
     }else if(val === "=" || val === "Enter"){
         
         // call and pass the operands and operator to  operator function and reset values
@@ -77,6 +78,7 @@ let evaluteExpressionAndDisplay = function(event){
         operandOne = [];
         operandTwo = [];
         operator = [];
+        answer = 0;
     }else if(numbers.includes(val)){
         // if it is number, check whether it's on first operand or not
         if(operator[0] === undefined){
