@@ -13,10 +13,18 @@ let operate = function(operandOne, operator, operandTwo){
         case "*":
             return product(+operandOne, +operandTwo);
         case "/":
-            return divide(+operandOne, operandTwo);
+            if(operandTwo == 0) return "division by zero";
+            return divide(+operandOne, +operandTwo);
         default:
-            return "Invalid Operator";
+            return "Invalid";
     }
+}
+
+let roundTo2DecimalPlace = function(num){
+    if (num === "division by zero" || num == "Invalid") return num;
+    if (Number(num) === num && num % 1 === 0) return num;
+
+    return Math.round((num + Number.EPSILON) * 100) / 100;
 }
 
 
@@ -35,20 +43,48 @@ let evaluteExpressionAndDisplay = function(event){
 
     if(operators.includes(val)){
         // if after evaluting expression user click operator, the first operand become the last asnwer
-        if(operandOne.length == 0 ) operandOne.push(...String(answer).split(""));
-        operator[0] = val;
+        if(operandOne.length === 0 && answer !== undefined){
+            operandOne.push(...String(answer).split(""));
+        }else if(operandTwo.length !== 0){
+            answer = roundTo2DecimalPlace(operate(operandOne.join(""), operator[0], operandTwo.join("")));
+            output.textContent = answer;
+            operandOne = [...String(answer).split("")];
+            operandTwo = [];
+        }
+        if(operandOne.length === 0){
+            if(val === "-"){
+                // operandOne = ["0"];
+                operator[0] = val;
+            }
+        }else{
+
+            operator[0] = val;
+        }
 
     }else if(val === "=" || val === "Enter"){
-        
         // call and pass the operands and operator to  operator function and reset values
-        answer = operate(operandOne.join(""), operator[0], operandTwo.join(""));
-        output.textContent = answer;
-        delete operator[0];
-        operandOne = [];
-        operandTwo = [];
+        if(operandOne.length === 0 && operator[0] == "-"){
+            if(operandTwo.length !== 0){
+                operandOne.push(operator[0], ...operandTwo);
+                operandTwo = [];
+                operator = [];
+                output.textContent = operandOne.join("");
+
+            }
+        }
+        
+        if(operandOne.length === 0) output.textContent = "Enter expression first!";
+        if(operandTwo.length !== 0){
+            answer = roundTo2DecimalPlace(operate(operandOne.join(""), operator[0], operandTwo.join("")));
+            output.textContent = answer;
+            delete operator[0];
+            operandOne = [...String(answer).split("")];
+            operandTwo = [];
+            answer = undefined;
+        }
 
     }else if(val === "Backspace"){
-        if(operandOne.length == 0) operandOne.push(...String(answer).split(""));
+
         // check whether it's on first operand or not
         if(operator[0] === undefined){
             operandOne.splice(operandOne.length - 1, 1);
@@ -78,7 +114,7 @@ let evaluteExpressionAndDisplay = function(event){
         operandOne = [];
         operandTwo = [];
         operator = [];
-        answer = 0;
+        answer = undefined;
     }else if(numbers.includes(val)){
         // if it is number, check whether it's on first operand or not
         if(operator[0] === undefined){
